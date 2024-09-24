@@ -1,9 +1,7 @@
-import  { useState, useEffect, useContext } from 'react';
-
-import { styled, Box, TextareaAutosize, Button, InputBase, FormControl  } from '@mui/material';
+import { useState, useEffect, useContext } from 'react';
+import { styled, Box, TextareaAutosize, Button, InputBase, FormControl } from '@mui/material';
 import { AddCircle as Add } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
 
@@ -54,35 +52,56 @@ const initialPost = {
 const CreatePost = () => {
     const navigate = useNavigate();
     const location = useLocation();
-
     const [post, setPost] = useState(initialPost);
-    const [file, setFile] = useState('');
+    const [file, setFile] = useState(null);
     const { account } = useContext(DataContext);
 
-    const url = post.picture ? post.picture : 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
+    const url = post.picture || 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
     
     useEffect(() => {
-        const getImage = async () => { 
-            if(file) {
+        if (file) {
+            const uploadImage = async () => { 
                 const data = new FormData();
-                data.append("name", file.name);
                 data.append("file", file);
                 
                 const response = await API.uploadFile(data);
-                post.picture = response.data;
+                if (response.isSuccess) {
+                    setPost((prevPost) => ({
+                        ...prevPost,
+                        picture: response.data // Assuming response.data contains the URL of the uploaded image
+                    }));
+                }
             }
+            uploadImage();
         }
-        getImage();
-        post.categories = location.search?.split('=')[1] || 'All';
-        post.username = account.username;
-    }, [file])
+    }, [file]);
+    
+
+    useEffect(() => {
+        // Set categories and username whenever the file changes
+        if (location.search) {
+            const categories = location.search.split('=')[1] || 'All';
+            setPost((prevPost) => ({
+                ...prevPost,
+                categories,
+                username: account.username
+            }));
+        }
+    }, [location.search, account.username]);
 
     const savePost = async () => {
-        let response = await API.createPost(post);
-        if(response.isSuccess){
-            navigate('/');
+        try {
+            const response = await API.createPost(post);
+            if (response.isSuccess) {
+                navigate('/');
+            } else {
+                console.error('Error creating post:', response);
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
+    
 
     const handleChange = (e) => {
         setPost({ ...post, [e.target.name]: e.target.value });
@@ -102,18 +121,18 @@ const CreatePost = () => {
                     style={{ display: "none" }}
                     onChange={(e) => setFile(e.target.files[0])}
                 />
-                <InputTextField onChange={(e) => handleChange(e)} name='title' placeholder="Title" />
-                <Button onClick={() => savePost()} variant="contained" color="primary">Publish</Button>
+                <InputTextField onChange={handleChange} name='title' placeholder="Title" />
+                <Button onClick={savePost} variant="contained" color="primary">Publish</Button>
             </StyledFormControl>
 
             <Textarea
-                rowsMin={5}
+                minRows={5}
                 placeholder="Tell your story..."
                 name='description'
-                onChange={(e) => handleChange(e)} 
+                onChange={handleChange} 
             />
         </Container>
-    )
+    );
 }
 
 export default CreatePost;

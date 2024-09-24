@@ -1,16 +1,22 @@
-
 import { styled, Box, Typography } from '@mui/material';
-import { addEllipsis } from '../../../utils/common-utils';
+
 const Container = styled(Box)`
     border: 1px solid #d3cede;
     border-radius: 10px;
-    margin: 10px;
+    margin: 20px;
     display: flex;
     align-items: center;
     flex-direction: column;
     height: 350px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    }
     & > img, & > p {
-        padding: 0 5px 5px 5px;
+        padding: 0 10px 10px 10px;
     }
 `;
 
@@ -22,26 +28,37 @@ const Image = styled('img')({
 });
 
 const Text = styled(Typography)`
-    color: #878787
+    color: #878787;
     font-size: 12px;
+    font-family: 'Roboto', sans-serif;
 `;
 
 const Heading = styled(Typography)`
-    font-size: 18px;
-    font-weight: 600
+    font-size: 20px;
+    font-weight: 600;
+    margin: 10px 0;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    text-align: center;
 `;
 
 const Details = styled(Typography)`
     font-size: 14px;
     word-break: break-word;
+    color: #555;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    padding: 0 15px;
 `;
 
 const Post = ({ post }) => {
-    const url = post.picture ? post.picture : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80';
-    
+    const url = post.picture
+        ? post.picture
+        : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80';
+
     const addEllipsis = (str, limit) => {
         return str.length > limit ? str.substring(0, limit) + '...' : str;
-    } 
+    };
 
     return (
         <Container>
@@ -51,7 +68,7 @@ const Post = ({ post }) => {
             <Text>Author: {post.username}</Text>
             <Details>{addEllipsis(post.description, 100)}</Details>
         </Container>
-    )
-}
+    );
+};
 
 export default Post;

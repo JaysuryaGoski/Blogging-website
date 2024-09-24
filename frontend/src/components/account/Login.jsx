@@ -7,51 +7,61 @@ import { useNavigate } from 'react-router-dom';
 const Component = styled(Box)`
   width: 400px;
   margin: auto;
-  box-shadow: 5px 2px 5px 2px rgb(0 0 0 / 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  background-color: #f4f6f8; /* Light cool background */
 `;
 
 const Image = styled('img')({
-  width: 200,
+  width: 150,
   margin: 'auto',
   display: 'flex',
-  padding: '50px 0 0',
+  padding: '20px 0',
 });
 
 const Wrapper = styled(Box)`
-  padding: 25px 35px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
-  & > div, & > button, & > p {
-    margin-top: 20px;
-  }
+  border-radius: 10px;
 `;
 
 const LoginButton = styled(Button)`
   text-transform: none;
-  background: #fb641b;
+  background: #007bff; /* Bright blue */
   color: white;
   height: 48px;
-  border-radius: 2px;
+  border-radius: 25px;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #0056b3; /* Darker blue for hover effect */
+  }
 `;
 
 const SignUpButton = styled(Button)`
   text-transform: none;
-  background: white;
-  color: #2874f0;
+  background: #ffffff; /* White for contrast */
+  color: #007bff; /* Match the login button color */
   height: 48px;
-  border-radius: 2px;
-  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 20%);
+  border-radius: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #e9ecef; /* Light gray for hover effect */
+  }
 `;
 
 const Text = styled(Typography)`
-  color: #878787;
+  color: #343a40; /* Dark gray for text */
   font-size: 16px;
 `;
 
 const Error = styled(Typography)`
-  font-size: 10px;
-  color: red;
-  line-height: 0;
+  font-size: 12px;
+  color: #dc3545; /* Red for error */
+  line-height: 1.2;
   margin-top: 10px;
   font-weight: 600;
 `;
@@ -130,19 +140,25 @@ const Login = ({ isUserAuthenticated }) => {
         {account === 'login' ? (
           <Wrapper>
             <TextField
-              variant="standard"
+              variant="outlined"
               value={login.username}
-              label="Enter Username"
+              label="Username"
               onChange={onValueChange}
               name="username"
+              fullWidth
+              required
+              margin="normal"
             />
             <TextField
-              variant="standard"
+              variant="outlined"
               value={login.password}
-              label="Enter Password"
+              label="Password"
               onChange={onValueChange}
               name="password"
               type="password"
+              fullWidth
+              required
+              margin="normal"
             />
             {error && <Error>{error}</Error>}
             <LoginButton variant="contained" onClick={loginUser}>Login</LoginButton>
@@ -151,9 +167,34 @@ const Login = ({ isUserAuthenticated }) => {
           </Wrapper>
         ) : (
           <Wrapper>
-            <TextField variant="standard" name="name" label="Enter Name" onChange={onInputChange} />
-            <TextField variant="standard" name="username" label="Enter Username" onChange={onInputChange} />
-            <TextField variant="standard" name="password" label="Enter Password" type="password" onChange={onInputChange} />
+            <TextField
+              variant="outlined"
+              name="name"
+              label="Name"
+              onChange={onInputChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              variant="outlined"
+              name="username"
+              label="Username"
+              onChange={onInputChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              variant="outlined"
+              name="password"
+              label="Password"
+              type="password"
+              onChange={onInputChange}
+              fullWidth
+              required
+              margin="normal"
+            />
             {error && <Error>{error}</Error>}
             <SignUpButton onClick={signupUser}>Sign Up</SignUpButton>
             <Text style={{ textAlign: 'center' }}>OR</Text>
