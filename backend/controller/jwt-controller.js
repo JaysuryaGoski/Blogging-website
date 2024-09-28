@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
-import Token from '../model/token.js';
+import Token from '../models/token.js';
 
 dotenv.config();
 

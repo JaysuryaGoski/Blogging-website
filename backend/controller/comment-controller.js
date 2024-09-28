@@ -1,11 +1,12 @@
 
-import Comment from '../model/comment.js';
+import Comment from '../models/comment.js';
 
 
 export const newComment = async (request, response) => {
     try {
-        const comment = await new Comment(request.body);
-        comment.save();
+        const comment = new Comment(request.body);
+        await comment.save();
+
 
         response.status(200).json('Comment saved successfully');
     } catch (error) {
@@ -27,7 +28,8 @@ export const getComments = async (request, response) => {
 export const deleteComment = async (request, response) => {
     try {
         const comment = await Comment.findById(request.params.id);
-        await comment.delete()
+        await comment.deleteOne();
+
 
         response.status(200).json('comment deleted successfully');
     } catch (error) {

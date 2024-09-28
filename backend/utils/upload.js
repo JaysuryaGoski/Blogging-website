@@ -1,24 +1,32 @@
 import multer from 'multer';
 import { GridFsStorage } from 'multer-gridfs-storage';
 import dotenv from 'dotenv';
+
+// Load environment variables
 dotenv.config();
+
 const username = process.env.DB_USERNAME;
 const password = process.env.DB_PASSWORD;
 
+// Define storage engine
 const storage = new GridFsStorage({
-    url: `mongodb+srv://${username}:${password}@blogapp.jimxj.mongodb.net/`,
-    options: { useNewUrlParser: true },
+    url: `mongodb+srv://${username}:${password}@cluster0.a79b9.mongodb.net/`,
+    options: { useNewUrlParser: true, useUnifiedTopology: true }, // Use unified topology for better connection management
     file: (request, file) => {
-        const match = ["image/png", "image/jpg"];
-
-        if(match.indexOf(file.memeType) === -1) 
-            return`${Date.now()}-blog-${file.originalname}`;
-
-        return {
-            bucketName: "photos",
-            filename: `${Date.now()}-blog-${file.originalname}`
+        const allowedMimeTypes = ["image/png", "image/jpg", "image/jpeg"];
+        
+        // Check if the file mimetype is valid
+        if (allowedMimeTypes.includes(file.mimetype)) {
+            return {
+                bucketName: "fs", // Store in 'fs' bucket
+                filename: `${Date.now()}-${file.originalname}` // Unique filename
+            };
         }
+        
+        // Reject files with unsupported mimetypes
+        return null;
     }
 });
 
-export default multer({storage}); 
+// Export the multer instance configured with GridFS storage
+export default multer({ storage });
