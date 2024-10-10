@@ -1,29 +1,25 @@
-import { useState, useEffect, useContext } from 'react';
-import { Box, Typography, styled } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-
-import { API } from '../../service/api';
-import { DataContext } from '../../context/DataProvider';
-
-// Components
-import Comments from './comments/Comments';
-
 // Styled Components
-const Container = styled(Box)(({ theme }) => ({
-    margin: '50px 100px',
-    [theme.breakpoints.down('md')]: {
+import Comments from './comments/Comments';
+import { Box, Typography } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import styled from '@emotion/styled';
+import { useState, useEffect } from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import { API } from '../../service/api';
+const Container = styled(Box)`
+    margin: 50px 100px;
+    ${({ theme }) => theme.breakpoints.down('md') && {
         margin: '20px 10px',
-    },
-}));
+    }}
+`;
 
-const Image = styled('img')({
-    width: '100%',
-    height: '60vh',
-    objectFit: 'cover',
-    borderRadius: '10px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-});
+const Image = styled('img')`
+    width: 100%;
+    height: 60vh;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+`;
 
 const IconWrapper = styled(Box)`
     float: right;
@@ -59,17 +55,17 @@ const Heading = styled(Typography)`
     letter-spacing: 1px;
 `;
 
-const Author = styled(Box)(({ theme }) => ({
-    color: '#878787',
-    display: 'flex',
-    alignItems: 'center',
-    margin: '20px 0',
-    fontSize: '14px',
-    [theme.breakpoints.down('sm')]: {
+const Author = styled(Box)`
+    color: #878787;
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    font-size: 14px;
+    ${({ theme }) => theme.breakpoints.down('sm') && {
         display: 'block',
         textAlign: 'center',
-    },
-}));
+    }}
+`;
 
 const PostDate = styled(Typography)`
     margin-left: auto;
@@ -85,11 +81,36 @@ const Description = styled(Typography)`
     text-align: justify;
 `;
 
+const CommentContainer = styled(Box)`
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+`;
+
+const CommentAuthor = styled(Typography)`
+    font-weight: 600;
+    font-size: 18px;
+    margin-right: 20px;
+`;
+
+const CommentDate = styled(Typography)`
+    font-size: 14px;
+    color: #878787;
+`;
+
+const CommentText = styled(Typography)`
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+`;
+
+// Component
 const DetailView = () => {
     const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
     
     const [post, setPost] = useState({});
-    const { account } = useContext(DataContext);
     const navigate = useNavigate();
     const { id } = useParams();
     
@@ -102,41 +123,40 @@ const DetailView = () => {
         }
         fetchPostData();
     }, [id]);
-
-    const deleteBlog = async () => {  
-        await API.deletePost(post._id);
-        navigate('/');
+    const deleteBlog = async () => {
+        try {
+            await API.deletePost(id);
+            navigate('/');
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
     }
+
 
     return (
         <Container>
-            <Image src={post.picture || url} alt="Post" />
-            
-            {account.username === post.username && (
-                <IconWrapper>
-                    <Link to={`/update/${post._id}`}>
-                        <EditIcon color="primary" />
-                    </Link>
-                    <DeleteIcon onClick={deleteBlog} color="error" />
-                </IconWrapper>
-            )}
-
+            <Image src={url} />
+            <IconWrapper>
+                <EditIcon />
+                <DeleteIcon onClick={deleteBlog} />
+            </IconWrapper>
             <Heading>{post.title}</Heading>
-
             <Author>
-                <Link to={`/?username=${post.username}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <Typography>
-                        Author: <span style={{ fontWeight: 600 }}>{post.username}</span>
-                    </Typography>
-                </Link>
-                <PostDate>{new Date(post.createdDate).toDateString()}</PostDate>
+                <CommentAuthor>{post.author}</CommentAuthor>
+                <CommentDate>{new Date(post.date).toDateString()}</CommentDate>
             </Author>
-
+            <PostDate>{new Date(post.date).toDateString()}</PostDate>
             <Description>{post.description}</Description>
-
-            <Comments post={post} />
+            <Comments>
+                {post.comments.map((comment) => (
+                    <CommentContainer key={comment._id}>
+                        <CommentAuthor>{comment.name}</CommentAuthor>
+                        <CommentDate>{new Date(comment.date).toDateString()}</CommentDate>
+                        <CommentText>{comment.comments}</CommentText>
+                    </CommentContainer>
+                ))}
+            </Comments>
         </Container>
     );
-}
-
+};
 export default DetailView;

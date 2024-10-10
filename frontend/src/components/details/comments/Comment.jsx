@@ -1,12 +1,11 @@
-import { useContext } from "react";
-import { Typography, Box, styled } from "@mui/material";
-import { Delete } from '@mui/icons-material';
-
-import { API } from '../../../service/api';
-import { DataContext } from "../../../context/DataProvider";
-
+/* eslint-disable react/prop-types */
 // Styled Components
-const Component = styled(Box)`
+import { Box, Typography, styled } from '@mui/material';
+import { Delete } from '@mui/icons-material';
+import { useContext } from 'react';
+import { DataContext } from '../../../context/DataProvider';
+import { API } from '../../../service/api';
+const StyledComment = styled(Box)`
     margin-top: 20px;
     background-color: #f9f9f9;
     border-radius: 10px;
@@ -14,13 +13,13 @@ const Component = styled(Box)`
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 `;
 
-const Container = styled(Box)`
+const StyledContainer = styled(Box)`
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 `;
 
-const Name = styled(Typography)`
+const StyledName = styled(Typography)`
     font-weight: 600;
     font-size: 18px;
     margin-right: 20px;
@@ -31,7 +30,7 @@ const StyledDate = styled(Typography)`
     color: #878787;
 `;
 
-const DeleteIcon = styled(Delete)`
+const StyledDeleteIcon = styled(Delete)`
     margin-left: auto;
     cursor: pointer;
     color: #f44336;
@@ -40,7 +39,7 @@ const DeleteIcon = styled(Delete)`
     }
 `;
 
-const CommentText = styled(Typography)`
+const StyledCommentText = styled(Typography)`
     font-size: 16px;
     color: #333;
     line-height: 1.5;
@@ -53,23 +52,27 @@ const Comment = ({ comment, setToggle }) => {
     const removeComment = async () => {
         try {
             await API.deleteComment(comment._id);
-            setToggle(prev => !prev);
+            setToggle((prevToggle) => !prevToggle);
         } catch (error) {
-            console.error("Error deleting comment", error);
+            console.error("Error deleting comment:", error);
         }
     };
 
     return (
-        <Component>
-            <Container>
-                <Name>{comment.name}</Name>
+        <StyledComment>
+            <StyledContainer>
+                <StyledName>{comment.name}</StyledName>
+                <StyledDate>{new Date(comment.date).toDateString()}</StyledDate>
+            </StyledContainer>
+            <StyledContainer>
+                <StyledName>{comment.name}</StyledName>
                 <StyledDate>{new Date(comment.date).toDateString()}</StyledDate>
                 {comment.name === account?.username && (
-                    <DeleteIcon onClick={removeComment} />
+                    <StyledDeleteIcon onClick={removeComment} />
                 )}
-            </Container>
-            <CommentText>{comment.comments}</CommentText>
-        </Component>
+            </StyledContainer>
+            <StyledCommentText>{comment.comments}</StyledCommentText>
+        </StyledComment>
     );
 };
 
