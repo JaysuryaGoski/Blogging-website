@@ -47,7 +47,7 @@ const initialPost = {
     username: '',
     categories: '',
     createdDate: new Date()
-}
+};
 
 const CreatePost = () => {
     const navigate = useNavigate();
@@ -56,29 +56,32 @@ const CreatePost = () => {
     const [file, setFile] = useState(null);
     const { account } = useContext(DataContext);
 
-    const url = post.picture || 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
-    
+    const defaultImage = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
+    const url = post.picture || defaultImage;
+
+    // Handle file upload
     useEffect(() => {
         if (file) {
-            const uploadImage = async () => { 
-                const data = new FormData();
-                data.append("file", file);
-                
-                const response = await API.uploadFile(data);
+            const uploadImage = async () => {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await API.uploadFile(formData, null, null);
                 if (response.isSuccess) {
                     setPost((prevPost) => ({
                         ...prevPost,
-                        picture: response.data // Assuming response.data contains the URL of the uploaded image
+                        picture: response.data.imageUrl // Ensure imageUrl matches the server's response key
                     }));
+                } else {
+                    console.error('Image upload failed:', response.error);
                 }
-            }
+            };
             uploadImage();
         }
     }, [file]);
-    
 
+    // Set initial post state based on location and account
     useEffect(() => {
-        // Set categories and username whenever the file changes
         if (location.search) {
             const categories = location.search.split('=')[1] || 'All';
             setPost((prevPost) => ({
@@ -89,28 +92,31 @@ const CreatePost = () => {
         }
     }, [location.search, account.username]);
 
+    // Save post to the server
     const savePost = async () => {
         try {
             const response = await API.createPost(post);
             if (response.isSuccess) {
                 navigate('/');
             } else {
-                console.error('Error creating post:', response);
+                console.error('Error creating post:', response.error);
             }
         } catch (error) {
             console.error('Error:', error);
         }
-    }
-    
+    };
 
+    // Handle input field changes
     const handleChange = (e) => {
         setPost({ ...post, [e.target.name]: e.target.value });
-    }
+    };
 
     return (
         <Container>
+            {/* Image preview */}
             <Image src={url} alt="post" />
 
+            {/* File input and title field */}
             <StyledFormControl>
                 <label htmlFor="fileInput">
                     <Add fontSize="large" color="action" />
@@ -118,21 +124,28 @@ const CreatePost = () => {
                 <input
                     type="file"
                     id="fileInput"
-                    style={{ display: "none" }}
+                    style={{ display: 'none' }}
                     onChange={(e) => setFile(e.target.files[0])}
                 />
-                <InputTextField onChange={handleChange} name='title' placeholder="Title" />
-                <Button onClick={savePost} variant="contained" color="primary">Publish</Button>
+                <InputTextField
+                    onChange={handleChange}
+                    name="title"
+                    placeholder="Title"
+                />
+                <Button onClick={savePost} variant="contained" color="primary">
+                    Publish
+                </Button>
             </StyledFormControl>
 
+            {/* Post description */}
             <Textarea
                 minRows={5}
                 placeholder="Tell your story..."
-                name='description'
-                onChange={handleChange} 
+                name="description"
+                onChange={handleChange}
             />
         </Container>
     );
-}
+};
 
 export default CreatePost;

@@ -59,15 +59,18 @@ const Comments = ({ post }) => {
     // Fetch comments for the post
     useEffect(() => {
         const fetchComments = async () => {
-            try {
-                const response = await API.getAllComments(post._id);
-                if (response.isSuccess) {
-                    setComments(response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching comments:", error);
+    try {
+        if (post._id) {
+            const response = await API.getAllComments(post._id);
+            if (response.isSuccess) {
+                setComments(response.data);
             }
         }
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+    }
+};
+
         fetchComments();
     }, [toggle, post]);
 

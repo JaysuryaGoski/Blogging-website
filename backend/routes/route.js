@@ -12,7 +12,7 @@ import upload from '../utils/upload.js';
 import { authenticateToken } from '../controller/jwt-controller.js';
 import {
     newComment,
-    getComments,
+    getAllComments,
     deleteComment
 } from '../controller/comment-controller.js';
 
@@ -22,20 +22,21 @@ const router = express.Router();
 router.post('/signup', signupUser);
 router.post('/login', loginUser);
 
-// File Upload Route
-router.post('/file/upload', upload.single('file'), async (req, res) => {
-    // Check if the upload was successful
+// **File Upload Route**
+router.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ message: "File upload failed. No file received." });
+        return res.status(400).json({ 
+            success: false, 
+            message: "File upload failed. No file received." 
+        });
     }
-    
-    // Call the original uploadImage function
-    await uploadImage(req, res);
+
+    // Call the `uploadImage` function
+    uploadImage(req, res);
 });
 
-// Get Image Route
-router.get('/file/:filename', getImage);
-
+// **Get Image Route**
+router.get('/:filename', getImage);
 // Post Routes
 router.post('/create', authenticateToken, createPost);
 router.get('/posts', authenticateToken, getAllPosts);
@@ -45,7 +46,7 @@ router.delete('/delete/:id', authenticateToken, deletePost);
 
 // Comment Routes
 router.post('/comment/new', authenticateToken, newComment);
-router.get('/comments/:id', authenticateToken, getComments);
+router.get('/comments/:id', authenticateToken, getAllComments);
 router.delete('/comment/delete/:id', authenticateToken, deleteComment);
 
 export default router;

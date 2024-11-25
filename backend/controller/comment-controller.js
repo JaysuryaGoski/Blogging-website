@@ -15,7 +15,7 @@ export const newComment = async (request, response) => {
 }
 
 
-export const getComments = async (request, response) => {
+export const getAllComments = async (request, response) => {
     try {
         const comments = await Comment.find({ postId: request.params.id });
         

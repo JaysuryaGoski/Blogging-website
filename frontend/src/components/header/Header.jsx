@@ -36,7 +36,7 @@ const Header = () => {
   return (
     <Component>
       <Container>
-        <Logo variant="h6">My Portfolio</Logo> {/* Logo section */}
+        <Logo variant="h6">Blog</Logo> {/* Logo section */}
         <NavLink to="/">Home</NavLink>
         <NavLink to="/about">About</NavLink>
         <NavLink to="/contact">Contact</NavLink>

@@ -9,7 +9,7 @@ const Component = styled(Box)`
   margin: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  background-color: #f4f6f8; /* Light cool background */
+  background-color: #f4f6f8;
 `;
 
 const Image = styled('img')({
@@ -28,39 +28,39 @@ const Wrapper = styled(Box)`
 
 const LoginButton = styled(Button)`
   text-transform: none;
-  background: #007bff; /* Bright blue */
+  background: #007bff;
   color: white;
   height: 48px;
   border-radius: 25px;
   transition: background 0.3s ease;
 
   &:hover {
-    background: #0056b3; /* Darker blue for hover effect */
+    background: #0056b3;
   }
 `;
 
 const SignUpButton = styled(Button)`
   text-transform: none;
-  background: #ffffff; /* White for contrast */
-  color: #007bff; /* Match the login button color */
+  background: #ffffff;
+  color: #007bff;
   height: 48px;
   border-radius: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: background 0.3s ease;
 
   &:hover {
-    background: #e9ecef; /* Light gray for hover effect */
+    background: #e9ecef;
   }
 `;
 
 const Text = styled(Typography)`
-  color: #343a40; /* Dark gray for text */
+  color: #343a40;
   font-size: 16px;
 `;
 
 const Error = styled(Typography)`
   font-size: 12px;
-  color: #dc3545; /* Red for error */
+  color: #dc3545;
   line-height: 1.2;
   margin-top: 10px;
   font-weight: 600;
@@ -68,7 +68,7 @@ const Error = styled(Typography)`
 
 const loginInitialValues = {
   username: '',
-  password: ''
+  password: '',
 };
 
 const signupInitialValues = {
@@ -87,7 +87,7 @@ const Login = ({ isUserAuthenticated }) => {
   const navigate = useNavigate();
 
   const onValueChange = (e) => {
-    setLogin({ ...login, [e.target.name]: e.target.value });
+    setLogin({ ...login, [e.target.name]: e.target.value || '' });
   };
 
   const toggleSignUp = () => {
@@ -95,7 +95,7 @@ const Login = ({ isUserAuthenticated }) => {
   };
 
   const onInputChange = (e) => {
-    setSignup({ ...signup, [e.target.name]: e.target.value });
+    setSignup({ ...signup, [e.target.name]: e.target.value || '' });
   };
 
   const signupUser = async () => {
@@ -115,97 +115,124 @@ const Login = ({ isUserAuthenticated }) => {
   };
 
   const loginUser = async () => {
+    setError(''); // Clear error state first
     try {
       let response = await API.userLogin(login);
       if (response.isSuccess) {
-        setError('');
         sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
         sessionStorage.setItem('refreshToken', `Bearer ${response.data.refreshToken}`);
         setAccounts({ username: response.data.username, name: response.data.name });
         isUserAuthenticated(true);
         navigate('/');
       } else {
-        setError('Something went wrong! Please try again later.');
+        setError('Invalid username or password');
       }
     } catch (error) {
-      setError('An unexpected error occurred! Please try again later.');
-      console.error("Error during login:", error);
+      setError('An unexpected error occurred. Please try again later.');
+      console.error("Login Error:", error);
     }
   };
+  
 
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    await loginUser();
+  };
+  
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    await signupUser();
+  };
+  
   return (
     <Component>
       <Box>
         <Image src={imageUrl} alt="Login" />
         {account === 'login' ? (
           <Wrapper>
-            <TextField
-              variant="outlined"
-              value={login.username}
-              label="Username"
-              onChange={onValueChange}
-              name="username"
-              fullWidth
-              required
-              margin="normal"
-            />
-            <TextField
-              variant="outlined"
-              value={login.password}
-              label="Password"
-              onChange={onValueChange}
-              name="password"
-              type="password"
-              fullWidth
-              required
-              margin="normal"
-            />
-            {error && <Error>{error}</Error>}
-            <LoginButton variant="contained" onClick={loginUser}>Login</LoginButton>
+            <form onSubmit={handleLoginSubmit}>
+              <TextField
+                variant="outlined"
+                value={login.username || ''}
+                label="Username"
+                onChange={onValueChange}
+                name="username"
+                fullWidth
+                required
+                margin="normal"
+                autoComplete="username" 
+              />
+              <TextField
+                variant="outlined"
+                value={login.password || ''}
+                label="Password"
+                onChange={onValueChange}
+                name="password"
+                type="password"
+                fullWidth
+                required
+                margin="normal"
+                autoComplete="current-password" 
+
+              />
+              {error && <Error>{error}</Error>}
+              
+              <LoginButton variant="contained" type="submit">Login</LoginButton>
+              </form>
             <Text style={{ textAlign: 'center' }}>OR</Text>
             <SignUpButton onClick={toggleSignUp}>Create an Account</SignUpButton>
+            
           </Wrapper>
         ) : (
           <Wrapper>
-            <TextField
-              variant="outlined"
-              name="name"
-              label="Name"
-              onChange={onInputChange}
-              fullWidth
-              required
-              margin="normal"
-            />
-            <TextField
-              variant="outlined"
-              name="username"
-              label="Username"
-              onChange={onInputChange}
-              fullWidth
-              required
-              margin="normal"
-            />
-            <TextField
-              variant="outlined"
-              name="password"
-              label="Password"
-              type="password"
-              onChange={onInputChange}
-              fullWidth
-              required
-              margin="normal"
-            />
-            {error && <Error>{error}</Error>}
-            <SignUpButton onClick={signupUser}>Sign Up</SignUpButton>
+            <form onSubmit={handleSignupSubmit}>
+              <TextField
+                variant="outlined"
+                name="name"
+                label="Name"
+                value={signup.name || ''}
+                onChange={onInputChange}
+                fullWidth
+                required
+                margin="normal"
+                autoComplete = "name"
+              />
+              <TextField
+                variant="outlined"
+                name="username"
+                label="Username"
+                value={signup.username || ''}
+                onChange={onInputChange}
+                fullWidth
+                required
+                margin="normal"
+                autoComplete="username" 
+              />
+              <TextField
+                variant="outlined"
+                name="password"
+                label="Password"
+                type="password"
+                value={signup.password || ''}
+                onChange={onInputChange}
+                fullWidth
+                required
+                margin="normal"
+                autoComplete="new-password"
+              />
+              {error && <Error>{error}</Error>}
+              
+              <SignUpButton type="submit">Sign Up</SignUpButton>
+            
             <Text style={{ textAlign: 'center' }}>OR</Text>
             <LoginButton variant="contained" onClick={toggleSignUp}>
               Already have an Account
             </LoginButton>
+            </form>
           </Wrapper>
         )}
       </Box>
     </Component>
   );
-};
-
+}  
 export default Login;

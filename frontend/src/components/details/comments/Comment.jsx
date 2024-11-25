@@ -60,10 +60,7 @@ const Comment = ({ comment, setToggle }) => {
 
     return (
         <StyledComment>
-            <StyledContainer>
-                <StyledName>{comment.name}</StyledName>
-                <StyledDate>{new Date(comment.date).toDateString()}</StyledDate>
-            </StyledContainer>
+            
             <StyledContainer>
                 <StyledName>{comment.name}</StyledName>
                 <StyledDate>{new Date(comment.date).toDateString()}</StyledDate>

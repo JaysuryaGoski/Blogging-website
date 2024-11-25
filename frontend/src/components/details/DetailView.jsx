@@ -1,162 +1,160 @@
-// Styled Components
-import Comments from './comments/Comments';
-import { Box, Typography } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
-import styled from '@emotion/styled';
-import { useState, useEffect } from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import { useState, useEffect, useContext } from 'react';
+
+import { Box, Typography, styled } from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+
 import { API } from '../../service/api';
-const Container = styled(Box)`
-    margin: 50px 100px;
-    ${({ theme }) => theme.breakpoints.down('md') && {
-        margin: '20px 10px',
-    }}
-`;
+import { DataContext } from '../../context/DataProvider';
 
-const Image = styled('img')`
-    width: 100%;
-    height: 60vh;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-`;
+// components
+import Comments from './comments/Comments';
 
-const IconWrapper = styled(Box)`
-    float: right;
-    display: flex;
-    gap: 10px;
-`;
+const Container = styled(Box)(({ theme }) => ({
+  margin: '50px auto',
+  padding: '0 20px',
+  maxWidth: '1200px',
+  [theme.breakpoints.down('md')]: {
+    margin: '20px auto',
+    padding: '0 10px',
+  },
+}));
+
+const Image = styled('img')({
+  width: '100%',
+  height: '60vh',
+  objectFit: 'cover',
+  borderRadius: '10px',
+  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+});
+
+const ActionsWrapper = styled(Box)({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: '10px',
+  marginTop: '10px',
+});
 
 const EditIcon = styled(Edit)`
-    cursor: pointer;
-    padding: 5px;
-    border: 1px solid #878787;
-    border-radius: 50%;
-    &:hover {
-        background-color: #f0f0f0;
-    }
+  padding: 8px;
+  border: 1px solid #1976d2;
+  border-radius: 50%;
+  color: #1976d2;
+  transition: background-color 0.3s, transform 0.2s;
+
+  &:hover {
+    background-color: #e3f2fd;
+    transform: scale(1.1);
+  }
 `;
 
 const DeleteIcon = styled(Delete)`
-    cursor: pointer;
-    padding: 5px;
-    border: 1px solid #878787;
-    border-radius: 50%;
-    &:hover {
-        background-color: #f8d7da;
-    }
+  padding: 8px;
+  border: 1px solid #d32f2f;
+  border-radius: 50%;
+  color: #d32f2f;
+  transition: background-color 0.3s, transform 0.2s;
+
+  &:hover {
+    background-color: #ffebee;
+    transform: scale(1.1);
+  }
 `;
 
-const Heading = styled(Typography)`
-    font-size: 38px;
-    font-weight: 700;
-    text-align: center;
-    margin: 40px 0 10px;
-    letter-spacing: 1px;
-`;
+const Heading = styled(Typography)(({ theme }) => ({
+  fontSize: '36px',
+  fontWeight: '700',
+  textAlign: 'center',
+  margin: '30px 0',
+  letterSpacing: '1px',
+  color: '#333',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '28px',
+    margin: '20px 0',
+  },
+}));
 
-const Author = styled(Box)`
-    color: #878787;
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-    font-size: 14px;
-    ${({ theme }) => theme.breakpoints.down('sm') && {
-        display: 'block',
-        textAlign: 'center',
-    }}
-`;
+const Author = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  margin: '20px 0',
+  fontSize: '14px',
+  color: '#555',
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+}));
 
-const PostDate = styled(Typography)`
-    margin-left: auto;
-    font-size: 14px;
-    color: #555;
-`;
+const AuthorLink = styled(Link)({
+  textDecoration: 'none',
+  color: 'inherit',
+  fontWeight: 600,
+  '&:hover': {
+    textDecoration: 'underline',
+  },
+});
 
-const Description = styled(Typography)`
-    line-height: 1.7;
-    color: #444;
-    font-size: 18px;
-    margin-top: 20px;
-    text-align: justify;
-`;
+const Description = styled(Typography)(({ theme }) => ({
+  lineHeight: '1.7',
+  color: '#444',
+  fontSize: '18px',
+  textAlign: 'justify',
+  marginTop: '20px',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '16px',
+  },
+}));
 
-const CommentContainer = styled(Box)`
-    margin-top: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-const CommentAuthor = styled(Typography)`
-    font-weight: 600;
-    font-size: 18px;
-    margin-right: 20px;
-`;
-
-const CommentDate = styled(Typography)`
-    font-size: 14px;
-    color: #878787;
-`;
-
-const CommentText = styled(Typography)`
-    font-size: 16px;
-    color: #333;
-    line-height: 1.5;
-`;
-
-// Component
 const DetailView = () => {
-    const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
-    
-    const [post, setPost] = useState({});
-    const navigate = useNavigate();
-    const { id } = useParams();
-    
-    useEffect(() => {
-        const fetchPostData = async () => {
-            const response = await API.getPostById(id);
-            if (response.isSuccess) {
-                setPost(response.data);
-            }
-        }
-        fetchPostData();
-    }, [id]);
-    const deleteBlog = async () => {
-        try {
-            await API.deletePost(id);
-            navigate('/');
-        } catch (error) {
-            console.error("Error deleting post:", error);
-        }
-    }
+  const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
 
+  const [post, setPost] = useState({});
+  const { account } = useContext(DataContext);
 
-    return (
-        <Container>
-            <Image src={url} />
-            <IconWrapper>
-                <EditIcon />
-                <DeleteIcon onClick={deleteBlog} />
-            </IconWrapper>
-            <Heading>{post.title}</Heading>
-            <Author>
-                <CommentAuthor>{post.author}</CommentAuthor>
-                <CommentDate>{new Date(post.date).toDateString()}</CommentDate>
-            </Author>
-            <PostDate>{new Date(post.date).toDateString()}</PostDate>
-            <Description>{post.description}</Description>
-            <Comments>
-                {post.comments.map((comment) => (
-                    <CommentContainer key={comment._id}>
-                        <CommentAuthor>{comment.name}</CommentAuthor>
-                        <CommentDate>{new Date(comment.date).toDateString()}</CommentDate>
-                        <CommentText>{comment.comments}</CommentText>
-                    </CommentContainer>
-                ))}
-            </Comments>
-        </Container>
-    );
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let response = await API.getPostById(id);
+      if (response.isSuccess) {
+        setPost(response.data);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const deleteBlog = async () => {
+    await API.deletePost(post._id);
+    navigate('/');
+  };
+
+  return (
+    <Container>
+      <Image src={post.picture || url} alt="Post Thumbnail" />
+      <ActionsWrapper>
+        {account.username === post.username && (
+          <>
+            <Link to={`/update/${post._id}`}>
+              <EditIcon />
+            </Link>
+            <DeleteIcon onClick={deleteBlog} />
+          </>
+        )}
+      </ActionsWrapper>
+      <Heading>{post.title}</Heading>
+      <Author>
+        <AuthorLink to={`/?username=${post.username}`}>
+          Author: {post.username}
+        </AuthorLink>
+        <Typography>{new Date(post.createdDate).toDateString()}</Typography>
+      </Author>
+      <Description>{post.description}</Description>
+      <Comments post={post} />
+    </Container>
+  );
 };
+
 export default DetailView;
